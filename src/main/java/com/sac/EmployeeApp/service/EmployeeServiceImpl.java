@@ -1,5 +1,6 @@
 package com.sac.EmployeeApp.service;
 
+import com.google.common.base.Optional;
 import com.sac.EmployeeApp.enums.Response;
 import com.sac.EmployeeApp.model.Department;
 import com.sac.EmployeeApp.model.Employee;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -27,8 +27,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee getEmployeeById(long employeeID) {
-        Optional<Employee> employee = employeeRepository.findById(employeeID);
-        return employee.orElse(null);
+        Optional<Employee> employee = findById(employeeID);
+        if(employee.isPresent()) {
+            return employee.get();
+        }
+        return null;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(employeeRequest == null || employeeRequest.getFirstName().isEmpty() || employeeRequest.getLastName().isEmpty()) {
             return new CommonResponseVO(Response.INSUFFICIENT_DATA);
         }
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeRequest.getEmployeeID());
+        Optional<Employee> optionalEmployee = findById(employeeRequest.getEmployeeID());
         if(!optionalEmployee.isPresent()) {
             return new CommonResponseVO(Response.UNAVAILABLE_EMPLOYEE);
         }
@@ -86,7 +89,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public CommonResponseVO deleteEmployee(long employeeID) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeID);
+        Optional<Employee> optionalEmployee = findById(employeeID);
         if(!optionalEmployee.isPresent()) {
             return new CommonResponseVO(Response.UNAVAILABLE_EMPLOYEE);
         }
@@ -97,5 +100,16 @@ public class EmployeeServiceImpl implements EmployeeService {
             return new CommonResponseVO(Response.FAILED);
         }
         return new CommonResponseVO(Response.SUCCESS);
+    }
+
+    private Optional<Employee> findById(long employeeID) {
+        List<Employee> employees = employeeRepository.findAll();
+        Optional<Employee> employeeOptional;
+        for(Employee employee : employees) {
+            if(employee.getEmployeeID() == employeeID) {
+                return Optional.of(employee);
+            }
+        }
+        return Optional.absent();
     }
 }

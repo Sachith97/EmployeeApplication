@@ -1,5 +1,7 @@
 package com.sac.EmployeeApp.service;
 
+import com.google.common.base.Optional;
+import com.sac.EmployeeApp.model.Employee;
 import com.sac.EmployeeApp.vo.CommonResponseVO;
 import com.sac.EmployeeApp.vo.DepartmentRequestVO;
 import com.sac.EmployeeApp.enums.Response;
@@ -9,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
@@ -23,8 +25,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Department getDepartmentById(long departmentID) {
-        Optional<Department> department = departmentRepository.findById(departmentID);
-        return department.orElse(null);
+        Optional<Department> department = findById(departmentID);
+        if(department.isPresent()) {
+            return department.get();
+        }
+        return null;
     }
 
     @Override
@@ -41,5 +46,16 @@ public class DepartmentServiceImpl implements DepartmentService {
             return new CommonResponseVO(Response.FAILED);
         }
         return new CommonResponseVO(Response.SUCCESS);
+    }
+
+    private Optional<Department> findById(long departmentID) {
+        List<Department> departments = departmentRepository.findAll();
+        Optional<Employee> employeeOptional;
+        for(Department department : departments) {
+            if(department.getDepartmentID() == departmentID) {
+                return Optional.of(department);
+            }
+        }
+        return Optional.absent();
     }
 }

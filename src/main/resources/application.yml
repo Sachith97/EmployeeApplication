@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:mem:employeedb;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+logging:
+  level:
+    ROOT: INFO
+    web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: TRACE
